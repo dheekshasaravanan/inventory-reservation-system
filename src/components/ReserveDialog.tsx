@@ -34,11 +34,14 @@ export default function ReserveDialog({
   const [loading, setLoading] =
     useState(false);
 
+  const [open, setOpen] =
+    useState(false);
+
   async function handleReserve() {
     try {
       setLoading(true);
 
-      const res = await fetch(
+      const response = await fetch(
         "/api/reservations",
         {
           method: "POST",
@@ -46,26 +49,38 @@ export default function ReserveDialog({
           headers: {
             "Content-Type":
               "application/json",
+
+            "Idempotency-Key":
+              crypto.randomUUID(),
           },
 
           body: JSON.stringify({
             productId: item.productId,
+
             warehouseId:
               item.warehouseId,
+
             quantity,
           }),
         }
       );
 
-      const data = await res.json();
+      const data =
+        await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.error);
+      if (!response.ok) {
+        throw new Error(
+          data.error
+        );
       }
 
       toast.success(
         "Reservation created successfully"
       );
+
+      setOpen(false);
+
+      setQuantity(1);
 
       onSuccess();
     } catch (error: any) {
@@ -79,42 +94,79 @@ export default function ReserveDialog({
   }
 
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={setOpen}
+    >
       <DialogTrigger asChild>
         <Button
-          className="w-full mt-5"
+          className="w-full mt-5 rounded-xl h-11 font-semibold shadow-md hover:shadow-lg transition-all"
           disabled={
             item.availableQuantity <= 0
           }
         >
-          Reserve Stock
+          {item.availableQuantity > 0
+            ? "Reserve Stock"
+            : "Out of Stock"}
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="sm:max-w-md rounded-3xl border-0 shadow-2xl">
         <DialogHeader>
-          <DialogTitle>
-            Reserve {item.productName}
+          <DialogTitle className="text-2xl font-bold">
+            Reserve{" "}
+            {item.productName}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-4">
-          <Input
-            type="number"
-            min={1}
-            max={item.availableQuantity}
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(
-                Number(e.target.value)
-              )
-            }
-          />
+        <div className="space-y-5 mt-4">
+          <div className="rounded-2xl bg-slate-100 dark:bg-slate-900 p-4">
+            <div className="text-sm text-slate-500">
+              Warehouse
+            </div>
+
+            <div className="font-semibold mt-1">
+              {item.warehouseName}
+            </div>
+
+            <div className="text-sm text-slate-500 mt-3">
+              Available Stock
+            </div>
+
+            <div className="text-2xl font-black mt-1">
+              {
+                item.availableQuantity
+              }
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Quantity
+            </label>
+
+            <Input
+              type="number"
+              min={1}
+              max={
+                item.availableQuantity
+              }
+              value={quantity}
+              onChange={(e) =>
+                setQuantity(
+                  Number(
+                    e.target.value
+                  )
+                )
+              }
+              className="h-11 rounded-xl"
+            />
+          </div>
 
           <Button
             onClick={handleReserve}
             disabled={loading}
-            className="w-full"
+            className="w-full h-11 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
           >
             {loading
               ? "Reserving..."
