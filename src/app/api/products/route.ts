@@ -1,38 +1,56 @@
 import { prisma } from "@/lib/prisma";
+
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const inventories = await prisma.inventory.findMany({
-      include: {
-        product: true,
-        warehouse: true,
-      },
-    });
+    const inventories =
+      await prisma.inventory.findMany({
+        include: {
+          product: true,
+          warehouse: true,
+        },
+      });
 
-    const formatted = inventories.map((item) => ({
-      inventoryId: item.id,
-      productId: item.productId,
-      warehouseId: item.warehouseId,
+    const formatted =
+      inventories.map((item) => ({
+        inventoryId: item.id,
 
-      productName: item.product.name,
-      warehouseName: item.warehouse.name,
+        productId: item.productId,
 
-      price: item.product.price,
+        warehouseId:
+          item.warehouseId,
 
-      totalQuantity: item.totalQuantity,
-      reservedQuantity: item.reservedQuantity,
+        productName:
+          item.product.name,
 
-      availableQuantity:
-        item.totalQuantity - item.reservedQuantity,
-    }));
+        warehouseName:
+          item.warehouse.name,
 
-    return NextResponse.json(formatted);
+        price: item.product.price,
+
+        totalQuantity:
+          item.totalQuantity,
+
+        reservedQuantity:
+          item.reservedQuantity,
+
+        availableQuantity:
+          item.totalQuantity -
+          item.reservedQuantity,
+      }));
+
+    return NextResponse.json(
+      formatted
+    );
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      {
+        error:
+          "Failed to fetch products",
+      },
       { status: 500 }
     );
   }
