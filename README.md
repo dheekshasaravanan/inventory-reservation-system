@@ -32,6 +32,20 @@ This project focuses on:
 - Responsive SaaS-style UI
 
 ---
+## Screenshots
+
+### Launch Page
+![Launch Page](./public/screenshots/launch-page.jpeg)
+
+### Dashboard
+![Dashboard](./public/screenshots/dashboard.png)
+
+### Reservation Dialog
+![Reservation](./public/screenshots/reservation.jpeg)
+
+### Active Reservations
+![Active Reservations](./public/screenshots/active-reservations.jpeg)
+---
 
 # Tech Stack
 
